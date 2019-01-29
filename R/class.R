@@ -1,5 +1,3 @@
-
-
 ## 主要是拼成insert sql，然后插入数据即可
 setClass("JHDBCConnection", representation("DBIConnection", jc="jobjRef", identifier.quote="character"),contains=c("DBIConnection","JDBCConnection"))
 setMethod("dbDataType", signature(dbObj="JHDBCConnection", obj = "ANY"),
@@ -53,7 +51,7 @@ setMethod("dbCreateTable", "JHDBCConnection", def=function(conn,name,fields) {
 })
 
 
-setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, overwrite=TRUE) {
+setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, overwrite=TRUE,batch=1000L) {
   overwrite <- isTRUE(as.logical(overwrite))
   if (is.vector(value) && !is.list(value)) value <- data.frame(x=value)
   if (length(value)<1) stop("value must have at least one column")
@@ -72,7 +70,14 @@ setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, ove
     dbSendUpdate(conn, ct)
   }
   if (length(value[[1]])) {
-    sql = .sql.generate(qname,value)
-    dbSendUpdate(conn,sql)
+    l = nrow(value)
+    s = 1
+    while (s<=l){
+      e = s+batch
+      sql = .sql.generate(qname,value[s:e,,drop=FALSE])
+      dbSendUpdate(conn,sql)
+      s = e+1
+    }
   }
 })
+
