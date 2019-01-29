@@ -1,0 +1,3 @@
+exportClasses(JDBCDriver, JDBCConnection, JHDBCConnection,JDBCResult)
+import(methods, DBI, rJava,RJDBC)
+exportMethods(dbClearResult,dbColumnInfo,dbCommit,dbConnect,dbDataType,dbDisconnect,dbExistsTable,dbGetException,dbGetInfo,dbGetQuery,dbListConnections,dbListFields,dbListResults,dbListTables,dbReadTable,dbRemoveTable,dbRollback,dbSendQuery,dbSendUpdate,dbUnloadDriver,dbWriteTable,dbGetTables,dbCreateTable,dbGetFields,fetch)
