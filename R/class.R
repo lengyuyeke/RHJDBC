@@ -74,7 +74,7 @@ setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, ove
     s = 1
     while (s<=l){
       e = s+batch
-      sql = .sql.generate(qname,value[s:e,,drop=FALSE])
+      sql = .sql.generate(qname,value[s:e,])
       dbSendUpdate(conn,sql)
       s = e+1
     }
