@@ -23,13 +23,22 @@ setMethod("dbDataType", signature(dbObj="JHDBCConnection", obj = "ANY"),
   paste(quote,s,quote,sep='')
 }
 
-.sql.generate <- function(name,value){
+.sql.generate <- function(name,value,partition_column=NULL,partition_value = ""){
   list <- lapply(value, function(o) if (!is.numeric(o)) paste('"',o,'"',sep="") else o)
   valued = do.call(cbind,list)
   sql_t = apply(valued,1,paste,collapse=",")
   sql =  paste("(",sql_t,")",collapse=",")
-  paste("INSERT INTO ",name," VALUES" ,sql )
+  if (is.null(partition_column)){
+    rsql = paste("INSERT INTO ",name," VALUES" ,sql)
+  }else {
+    if (partition_value==""){
+      rsql = paste("INSERT INTO ",name,"PARTITION (",partition_column,") VALUES" ,sql)
+    }else{
+      rsql = paste("INSERT INTO ",name,"PARTITION (",partition_column,"='",partition_value,"') VALUES" ,sql)
+    }
+  }
 
+  rsql
 }
 
 
@@ -51,7 +60,7 @@ setMethod("dbCreateTable", "JHDBCConnection", def=function(conn,name,fields) {
 })
 
 
-setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, overwrite=TRUE,batch=1000L) {
+setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,partition_column = NULL, partition_value = "",overwrite=TRUE,batch=1000L) {
   overwrite <- isTRUE(as.logical(overwrite))
   if (is.vector(value) && !is.list(value)) value <- data.frame(x=value)
   if (length(value)<1) stop("value must have at least one column")
@@ -74,7 +83,8 @@ setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value, ove
     s = 1
     while (s<=l){
       e = s+batch
-      sql = .sql.generate(qname,value[s:e,])
+      e = min(e,l)
+      sql = .sql.generate(qname,value[s:e,],partition_column,partition_value)
       dbSendUpdate(conn,sql)
       s = e+1
     }
