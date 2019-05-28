@@ -20,7 +20,7 @@ drv <- JDBC("org.apache.hive.jdbc.HiveDriver") # set driver
 con <- dbConnect(drv,...)                      # set connection,url,username,password
 class(con) = "JHDBCConnection" # change the class of con 
 dbRemoveTable(con, "tmp.mtcars")
-# if the data(mtcars) only have one columns,it will raise a error,just add another column
+# if the data only have one column,it will raise a error,just add another column
 dbCreateTable(con, "tmp.mtcars", mtcars)
 dbWriteTable(con, "tmp.mtcars", mtcars,overwrite=FALSE)
 query = "select * from tmp.mtcars"
