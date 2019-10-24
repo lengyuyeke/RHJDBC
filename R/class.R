@@ -23,7 +23,7 @@ setMethod("dbDataType", signature(dbObj="JHDBCConnection", obj = "ANY"),
   paste(quote,s,quote,sep='')
 }
 
-.sql.generate <- function(name,value,partition_column=NULL,partition_value = ""){
+.sql.generate <- function(name,value,partition_column=NULL,partition_value =  NULL){
   list <- lapply(value, function(o) if (!is.numeric(o)) paste('"',o,'"',sep="") else o)
   valued = do.call(cbind,list)
   sql_t = apply(valued,1,paste,collapse=",")
@@ -31,10 +31,10 @@ setMethod("dbDataType", signature(dbObj="JHDBCConnection", obj = "ANY"),
   if (is.null(partition_column)){
     rsql = paste("INSERT INTO ",name," VALUES" ,sql)
   }else {
-    if (partition_value==""){
+    if (is.null(partition_value)){
       rsql = paste("INSERT INTO ",name,"PARTITION (",partition_column,") VALUES" ,sql)
     }else{
-      rsql = paste("INSERT INTO ",name,"PARTITION (",partition_column,"='",partition_value,"') VALUES" ,sql)
+      rsql = paste("INSERT INTO ",name,"PARTITION (",partition_column,paste("='",partition_value,"')",sep="")," VALUES" ,sql)
     }
   }
 
@@ -60,7 +60,7 @@ setMethod("dbCreateTable", "JHDBCConnection", def=function(conn,name,fields) {
 })
 
 
-setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,partition_column = NULL, partition_value = "",overwrite=TRUE,batch=1000L) {
+setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,partition_column = NULL, partition_value = NULL,overwrite=TRUE,batch=1000L) {
   overwrite <- isTRUE(as.logical(overwrite))
   if (is.vector(value) && !is.list(value)) value <- data.frame(x=value)
   if (length(value)<1) stop("value must have at least one column")
@@ -73,7 +73,7 @@ setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,part
   fts <- sapply(value, dbDataType, dbObj=conn)
   fdef <- paste(.sql.qescape(names(value), TRUE, conn@identifier.quote),fts,collapse=',')
   qname <- .sql.qescape(name, TRUE, conn@identifier.quote)
-  if (overwrite) {
+  if (overwrite & is.null(partition_column)) {
     dbRemoveTable(conn,name=name)
     ct <- paste("CREATE TABLE ",qname," (",fdef,")",sep= '')
     dbSendUpdate(conn, ct)
