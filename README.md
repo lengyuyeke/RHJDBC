@@ -15,11 +15,11 @@ dbWriteTable(conn, name, value,partition_column = NULL, partition_value = NULL,o
 - basic example
 
 ```
+options( java.parameters = "-Xmx8g" ) # set jvm first
 require("RHJDBC")
 # initition
 cp = dir(system.file("java", package="RHJDBC"),full.names = TRUE) # you can use your own jdbc driver
 .jinit(classpath=cp)  # init
-options( java.parameters = "-Xmx8g" ) # set jvm
 drv <- JDBC("org.apache.hive.jdbc.HiveDriver") # set driver
 con <- dbConnect(drv,...)                      # set connection,url,username,password
 class(con) = "JHDBCConnection" # change the class of con 
