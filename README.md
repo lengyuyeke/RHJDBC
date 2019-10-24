@@ -21,6 +21,7 @@ require("RHJDBC")
 cp = dir(system.file("java", package="RHJDBC"),full.names = TRUE) # you can use your own jdbc driver
 .jinit(classpath=cp)  # init
 drv <- JDBC("org.apache.hive.jdbc.HiveDriver") # set driver
+#con <- dbConnect(drv,"jdbc:hive2://ip:port/default","username","password") 
 con <- dbConnect(drv,...)                      # set connection,url,username,password
 class(con) = "JHDBCConnection" # change the class of con 
 dbRemoveTable(con, "tmp.mtcars")
