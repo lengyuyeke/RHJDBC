@@ -60,10 +60,11 @@ setMethod("dbCreateTable", "JHDBCConnection", def=function(conn,name,fields) {
 })
 
 
-setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,partition_column = NULL, partition_value = NULL,overwrite=TRUE,batch=1000L) {
+setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,partition_column = NULL, partition_value = NULL,overwrite=TRUE,batch=nrow(value)) {
   overwrite <- isTRUE(as.logical(overwrite))
   if (is.vector(value) && !is.list(value)) value <- data.frame(x=value)
   if (length(value)<1) stop("value must have at least one column")
+  if(is.null(batch)) batch=nrow(value)
   if (is.null(names(value))) names(value) <- paste("V",1:length(value),sep='')
   if (length(value[[1]])>0) {
     if (!is.data.frame(value)) value <- as.data.frame(value, row.names=1:length(value[[1]]))
