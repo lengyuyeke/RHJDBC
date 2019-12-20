@@ -85,6 +85,7 @@ setMethod("dbWriteTable", "JHDBCConnection", def=function(conn, name, value,part
     while (s<=l){
       e = s+batch
       e = min(e,l)
+      print(sprintf("prepare to insert %s lines",e))
       sql = .sql.generate(qname,value[s:e,],partition_column,partition_value)
       dbSendUpdate(conn,sql)
       s = e+1
