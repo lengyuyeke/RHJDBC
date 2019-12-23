@@ -11,6 +11,10 @@ install_github("lengyuyeke/RHJDBC")
 ```
 dbWriteTable(conn, name, value,partition_column = NULL, partition_value = NULL,overwrite=TRUE,batch=1000L) # if value has partition values, partition_value should be left as NULL
 ```
+
+- parameter:batch
+  - do not set batch too big, the data will be joining together into a long sql which should be less than the max query size.
+  
 ## EXAMPLE
 - basic example
 
